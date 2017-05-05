@@ -15,40 +15,48 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "nasl_script.h"
 #include "nasl_graphics.h"
 #include "nasl_buffer.h"
 
-static int init();
+static int init(int width, int height);
 static int shutdown();
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 int main()
 {
+    int buffer_width = 320;
+    int buffer_height = 240;
 
-    init();
+    init(buffer_width, buffer_height);
 
     // Create main buffer
-    Buffer* buffer = nasl_buffer_create(800,600);
+    Buffer* buffer = nasl_buffer_create(buffer_width, buffer_height);
     // Clear main buffer to a blue color
     nasl_buffer_clear(buffer, BLUE);
 
-    // Create a sub_buffer
-    Buffer* sub_buffer = nasl_buffer_create(175,100);
+    int pal_offset = (buffer_width / 5) / 2;
+    int pal_width = (buffer_width - (pal_offset * 2)) / 4;
+    int pal_height = (buffer_height - (pal_offset * 2)) / 4;
 
-    // Draw a palette by blitting 16 different sub_buffers into the main buffer
+    // Create a palette buffer
+    Buffer* palette_buffer = nasl_buffer_create(pal_width,pal_height);
+
+    // Draw a palette by blitting 16 different palette buffers into the main buffer
     int col = 0;
-    int row = 50;
+    int row = pal_offset;
     for(int buf = 0; buf < 16; buf++)
     {
-        nasl_buffer_clear(sub_buffer, c64_palette[buf]);
-        nasl_buffer_blit(buffer, sub_buffer, 50 + (175 * col), row);
+        nasl_buffer_clear(palette_buffer, c64_palette[buf]);
+        nasl_buffer_blit(buffer, palette_buffer, pal_offset + (pal_width * col), row);
         col++;
         if(col % 4 == 0)
         {
             col = 0;
-            row += 100;
+            row += pal_height;
         }
     }
+    // Destroy the palette buffer
+    nasl_buffer_destroy(palette_buffer);
 
     // Main loop
     while(nasl_graphics_running())
@@ -61,27 +69,30 @@ int main()
         nasl_graphics_present();
     }
 
-    // Destroy the buffers we created
-    nasl_buffer_destroy(sub_buffer);
+    // Destroy the main buffer
     nasl_buffer_destroy(buffer);
 
     shutdown();
 }
 
-static int init()
+static int init(int width, int height)
 {
-    nasl_script_init();
-    nasl_script_run("assets/scripts/init.bas");
+    nasl_graphics_init(width, height, "nasl test", 0, 3);
 
-    nasl_graphics_init(800, 600, "nasl test", 0, 1);
+    glfwSetKeyCallback(nasl_graphics_get_window(), key_callback);
 
     return 1;
+}
+
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
 
 static int shutdown()
 {
     nasl_graphics_shutdown();
-    nasl_script_shutdown();
 
     return 1;
 }
