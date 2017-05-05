@@ -1,37 +1,42 @@
 #
 #   This file is part of the
-#    _                     _  __ 
-#   (_) __ ___      _____ | |/ _|
-#   | |/ _` \ \ /\ / / _ \| | |_ 
-#   | | (_| |\ V  V / (_) | |  _|
-#  _/ |\__,_| \_/\_/ \___/|_|_|  
-# |__/                           
-# 
-#   project : https://github.com/jacmoe/jawolf
+# ███╗   ██╗███████╗ ██████╗  ██████╗  █████╗ ██████╗ ██████╗ ███████╗███╗   ██╗███████╗
+# ████╗  ██║██╔════╝██╔═══██╗██╔════╝ ██╔══██╗██╔══██╗██╔══██╗██╔════╝████╗  ██║██╔════╝
+# ██╔██╗ ██║█████╗  ██║   ██║██║  ███╗███████║██████╔╝██║  ██║█████╗  ██╔██╗ ██║███████╗
+# ██║╚██╗██║██╔══╝  ██║   ██║██║   ██║██╔══██║██╔══██╗██║  ██║██╔══╝  ██║╚██╗██║╚════██║
+# ██║ ╚████║███████╗╚██████╔╝╚██████╔╝██║  ██║██║  ██║██████╔╝███████╗██║ ╚████║███████║
+# ╚═╝  ╚═══╝╚══════╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═════╝ ╚══════╝╚═╝  ╚═══╝╚══════╝
+#                                                                                       
+#   project : https://github.com/jacmoe/neogardens
 #
-#   Copyright 2016 Jacob Moen
+#   Copyright 2017 Jacob Moen
 #
 #
 cmake_minimum_required(VERSION 2.8.12)
 project(neogardens)
 
-#set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/)
-
 include(CMakeToolsHelpers OPTIONAL)
 
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup()
 
-# Dependencies
-# ------------
+find_package(PkgConfig REQUIRED)
+pkg_search_module(GLFW REQUIRED glfw3)
 
 find_package(OpenGL REQUIRED)
 
-# Paths
-# -----
+find_package(GLEW 1.10)
+if(${GLEW_FOUND})
+  add_definitions(-DUSE_GLEW)
+endif()
 
-set(COMMON_INC "../common/include")
-
-# libs
-# -----------------
+include_directories(
+    ${CONAN_INCLUDE_DIRS_NASL}/include
+    ${CONAN_INCLUDE_DIRS_NASL}/3rd/include
+    ${GLFW_INCLUDE_DIRS}
+    ${OPENGL_INCLUDE_DIRS}
+    ${GLEW_INCLUDE_DIRS}
+)
 
 add_subdirectory(1pal)
 #add_subdirectory()

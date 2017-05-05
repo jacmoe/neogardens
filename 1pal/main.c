@@ -1,33 +1,90 @@
-#define  APP_IMPLEMENTATION
-#define  APP_NULL
-#include "app.h"
+/*
+*   This file is part of the
+* ███╗   ██╗███████╗ ██████╗  ██████╗  █████╗ ██████╗ ██████╗ ███████╗███╗   ██╗███████╗
+* ████╗  ██║██╔════╝██╔═══██╗██╔════╝ ██╔══██╗██╔══██╗██╔══██╗██╔════╝████╗  ██║██╔════╝
+* ██╔██╗ ██║█████╗  ██║   ██║██║  ███╗███████║██████╔╝██║  ██║█████╗  ██╔██╗ ██║███████╗
+* ██║╚██╗██║██╔══╝  ██║   ██║██║   ██║██╔══██║██╔══██╗██║  ██║██╔══╝  ██║╚██╗██║╚════██║
+* ██║ ╚████║███████╗╚██████╔╝╚██████╔╝██║  ██║██║  ██║██████╔╝███████╗██║ ╚████║███████║
+* ╚═╝  ╚═══╝╚══════╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═════╝ ╚══════╝╚═╝  ╚═══╝╚══════╝
+*   project : https://github.com/jacmoe/neogardens
+*
+*   Copyright 2017 Jacob Moen
+*
+*/
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
 
-#include <stdlib.h> // for rand and __argc/__argv
-#include <string.h> // for memset
+#include "nasl_script.h"
+#include "nasl_graphics.h"
+#include "nasl_buffer.h"
 
-int app_proc( app_t* app, void* )
+static int init();
+static int shutdown();
+
+int main()
 {
-    APP_U32 canvas[ 320 * 200 ]; // a place for us to draw stuff
-    memset( canvas, 0xC0, sizeof( canvas ) ); // clear to grey
-    app_screenmode( app, APP_SCREENMODE_WINDOW );
 
-    // keep running until the user close the window
-    while( app_yield( app ) != APP_STATE_EXIT_REQUESTED )
+    init();
+
+    // Create main buffer
+    Buffer* buffer = nasl_buffer_create(800,600);
+    // Clear main buffer to a light grey color
+    nasl_buffer_clear(buffer, GREY3);
+
+    // Create a sub_buffer
+    Buffer* sub_buffer = nasl_buffer_get_subbuffer(buffer, 50, 50, 700, 400);
+    nasl_buffer_clear(sub_buffer, BLACK);
+
+    // Draw the C64 palette to the buffer
+    int offset = 0;
+    for (int palx = 0; palx < 16; palx++)
     {
-        // plot a random pixel on the canvas
-        int x = rand() % 320;
-        int y = rand() % 200;
-        int color = rand() | ( rand() << 16 );
-        canvas[ x + y * 320 ] = color;
-
-        // display the canvas
-        app_present( app, canvas, 320, 200, 0xffffff, 0x000000 );
+        for (int j = offset; j < offset + 25; j++)
+        {
+            for (int i = 0; i < sub_buffer->width; i++)
+            {
+                nasl_buffer_set_pixel(sub_buffer, i, j, c64_palette[palx]);
+            }
+        }
+        offset += 25;
     }
-    return 0;
+    // Blit sub_buffer onto the main buffer
+    nasl_buffer_blit(buffer, sub_buffer, 50, 50);
+
+
+    // Main loop
+    while(nasl_graphics_running())
+    {
+        // Event polling
+        nasl_graphics_poll_events();
+        // Render the main buffer
+        nasl_graphics_render(buffer);
+        // Swap buffers
+        nasl_graphics_present();
+    }
+
+    // Destroy the buffers we created
+    nasl_buffer_destroy(sub_buffer);
+    nasl_buffer_destroy(buffer);
+
+    shutdown();
 }
 
-int main( int argc, char** argv )
+static int init()
 {
-    (void) argc, argv;
-    return app_run( app_proc, NULL, NULL, NULL, NULL );
+    nasl_script_init();
+    nasl_script_run("assets/scripts/init.bas");
+
+    nasl_graphics_init(800, 600, "nasl test");
+
+    return 1;
+}
+
+static int shutdown()
+{
+    nasl_graphics_shutdown();
+    nasl_script_shutdown();
+
+    return 1;
 }
