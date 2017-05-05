@@ -73,7 +73,7 @@ static int init()
     nasl_script_init();
     nasl_script_run("assets/scripts/init.bas");
 
-    nasl_graphics_init(800, 600, "nasl test");
+    nasl_graphics_init(800, 600, "nasl test", 0);
 
     return 1;
 }
