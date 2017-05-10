@@ -26,7 +26,7 @@ endif()
 
 include(${CMAKE_BINARY_DIR}/conan.cmake)
 
-conan_cmake_run(REQUIRES nasl/0.2@jacmoe/testing
+conan_cmake_run(REQUIRES nasl/0.3@jacmoe/testing
                 BASIC_SETUP
                 BUILD missing)
 
