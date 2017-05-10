@@ -52,5 +52,5 @@ include_directories(
 )
 
 add_subdirectory(1pal)
-#add_subdirectory()
+add_subdirectory(2maze)
 #add_subdirectory()
