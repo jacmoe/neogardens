@@ -1,5 +1,5 @@
 [requires]
-nasl/0.3@jacmoe/testing
+nasl/0.4@jacmoe/testing
 
 [generators]
 cmake
