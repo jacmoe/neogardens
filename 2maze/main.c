@@ -17,6 +17,9 @@
 
 #include "nasl_graphics.h"
 #include "nasl_buffer.h"
+#include "nasl_image.h"
+#include "nasl_draw.h"
+
 
 static int init(int width, int height);
 static int shutdown();
@@ -70,7 +73,10 @@ int main()
     Buffer* buffer = nasl_buffer_create(buffer_width, buffer_height);
     nasl_buffer_set_mainbuffer(buffer);
     // Clear main buffer to a dark grey color
-    nasl_buffer_clear(buffer, GREY1);
+    //nasl_buffer_clear(buffer, GREY1);
+
+    Buffer* background = nasl_image_load("assets/textures/background.png");
+    nasl_buffer_blit(buffer, background, 0, 0);
 
     draw_box(buffer);
     draw_maze(buffer);
