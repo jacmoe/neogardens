@@ -278,7 +278,7 @@ void draw_box(Buffer* buffer)
 
 static int init(int width, int height)
 {
-    nasl_graphics_init(width, height, "nasl test", 0, 3);
+    nasl_graphics_init(width, height, "Neogardens Wireframe Maze Demo", 0, 3);
 
     glfwSetKeyCallback(nasl_graphics_get_window(), key_callback);
 
