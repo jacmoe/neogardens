@@ -59,6 +59,8 @@ struct xy pos = {1,3};
 int direction = 3;
 int visibility = 4;
 
+struct xy newpos;
+
 void draw_maze(Buffer* buffer);
 void draw_box(Buffer* buffer);
 
@@ -78,14 +80,18 @@ int main()
     Buffer* background = nasl_image_load("assets/textures/background.png");
     nasl_buffer_blit(buffer, background, 0, 0);
 
-    draw_box(buffer);
-    draw_maze(buffer);
-
     // Main loop
     while(nasl_graphics_running())
     {
         // Event polling
         nasl_graphics_poll_events();
+
+        // draw box and maze
+        nasl_buffer_clear(buffer, GREY1);
+        nasl_buffer_blit(buffer, background, 0, 0);
+        draw_box(buffer);
+        draw_maze(buffer);
+
         // Render the main buffer
         nasl_graphics_render(buffer);
         // Swap buffers
@@ -291,10 +297,55 @@ static int init(int width, int height)
     return 1;
 }
 
+static void handle_keypress(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    // Do we want to move forward?
+    if(key == GLFW_KEY_W)
+    {
+        newpos.x = pos.x + increment[direction].x;
+        newpos.y = pos.y + increment[direction].y;
+        if(!maze[newpos.x][newpos.y])
+        {
+            pos.x = newpos.x;
+            pos.y = newpos.y;
+        }
+    }
+    // or do we want to go backward?
+    else if(key == GLFW_KEY_S)
+    {
+        newpos.x = pos.x - increment[direction].x;
+        newpos.y = pos.y - increment[direction].y;
+        if(!maze[newpos.x][newpos.y])
+        {
+            pos.x = newpos.x;
+            pos.y = newpos.y;
+        }
+    }
+    // Do we want to turn left?
+    if(key == GLFW_KEY_A)
+    {
+        --direction;
+        if(direction < 0)
+            direction = 3;
+    }
+    // or do we want to turn right?
+    else if(key == GLFW_KEY_D)
+    {
+        direction++;
+        if(direction > 3)
+            direction = 0;
+    }
+}
+
+
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+    {
         glfwSetWindowShouldClose(window, GLFW_TRUE);
+    } else {
+        handle_keypress(window, key, scancode, action, mods);
+    }
 }
 
 static int shutdown()
