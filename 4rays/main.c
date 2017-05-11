@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <math.h>
 
 #include "nasl_graphics.h"
 #include "nasl_buffer.h"
@@ -21,15 +22,15 @@
 #include "nasl_draw.h"
 
 
-const WALL_HEIGHT = 64;
-const VIEWER_HEIGHT = 32;
-const VIEWER_DISTANCE = 128;
-const VIEWPORT_LEFT = 40;
-const VIEWPORT_RIGHT = 280;
-const VIEWPORT_TOP = 50;
-const VIEWPORT_BOT = 150;
-const VIEWPORT_HEIGHT = 100;
-const VIEWPORT_CENTER = 100;
+const int  WALL_HEIGHT = 64;
+const int VIEWER_HEIGHT = 32;
+const int VIEWER_DISTANCE = 128;
+const int VIEWPORT_LEFT = 40;
+const int VIEWPORT_RIGHT = 280;
+const int VIEWPORT_TOP = 50;
+const int VIEWPORT_BOT = 150;
+const int VIEWPORT_HEIGHT = 100;
+const int VIEWPORT_CENTER = 100;
 
 
 typedef int map_type[16][16];
@@ -37,36 +38,37 @@ typedef int map_type[16][16];
 map_type map =
 {
   { 5, 5, 5, 5,   5, 5, 5, 5,   5, 5, 5, 5,   5, 5, 5, 5},
-  { 7, 5, 0, 5,   0, 0, 0, 2,   0, 0, 0, 0,   0, 0, 0, 5},
-  { 7, 0, 0, 0,   0, 0, 0, 0,   3, 0, 0, 0,   0, 0, 0, 5},
-  { 7, 0, 0, 0,   0, 0, 0, 0,   0, 6, 0, 0,   0, 0, 0, 5},
+  { 6, 5, 0, 5,   0, 0, 0, 2,   0, 0, 0, 0,   0, 0, 0, 5},
+  { 6, 0, 0, 0,   0, 0, 0, 0,   3, 0, 0, 0,   0, 0, 0, 5},
+  { 6, 0, 0, 0,   0, 0, 0, 0,   0, 6, 0, 0,   0, 0, 0, 5},
 
   { 7, 0, 0, 0,   0, 0, 0, 0,   0, 0, 5, 4,   0, 0, 0, 5},
-  {12, 0, 0, 0,   0, 0, 0, 0,   0, 0,11,11,   0, 0, 0, 5},
-  {11, 0, 0, 0,   0, 0, 0, 0,   0, 0, 0,11,  10, 0, 0, 5},
-  {11, 0, 0, 0,   0, 0, 0, 0,   0, 0, 0, 0,  10, 0, 0, 5},
+  { 4, 0, 0, 0,   0, 0, 0, 0,   0, 0,10,10,   0, 0, 0, 5},
+  {10, 0, 0, 0,   0, 0, 0, 0,   0, 0, 0,10,  10, 0, 0, 5},
+  {10, 0, 0, 0,   0, 0, 0, 0,   0, 0, 0, 0,  10, 0, 0, 5},
 
-  {11, 7, 7, 0,   0, 0, 0, 0,   0, 0, 0,11,  10, 0, 0, 5},
-  {12, 0, 0, 0,   0, 0, 0, 0,   0, 0,11,11,   0, 0, 0, 5},
-  {12, 7, 7, 0,   0, 0, 5, 1,   0, 1, 0, 0,   0, 0, 0, 5},
-  { 7, 0, 0, 0,   0, 0, 0, 1,   0, 1, 0, 0,   0, 0, 0, 5},
+  {10, 6, 6, 0,   0, 0, 0, 0,   0, 0, 0,10,  10, 0, 0, 5},
+  { 4, 0, 0, 0,   0, 0, 0, 0,   0, 0,10,10,   0, 0, 0, 5},
+  { 4, 6, 6, 0,   0, 0, 5, 4,   0, 3, 0, 0,   0, 0, 0, 5},
+  { 6, 0, 0, 0,   0, 0, 0, 4,   0, 3, 0, 0,   0, 0, 0, 5},
 
-  { 7, 0, 0, 0,   0, 0, 0, 1,   0, 0, 0, 0,   0, 0, 0,12},
-  { 7, 0, 0, 0,   0, 0, 0, 1,   0, 1, 0, 0,   0, 0, 0,11},
-  { 7, 6, 6, 6,   6, 0, 0, 1,   0, 1, 0, 0,   0, 0, 0,10},
-  { 7, 5, 5, 5,   5, 5, 5,15,  15,15, 5, 5,   5, 5, 5, 5}
+  { 6, 0, 0, 0,   0, 0, 0, 3,   0, 0, 0, 0,   0, 0, 0, 2},
+  { 6, 0, 0, 0,   0, 0, 0, 3,   0, 3, 0, 0,   0, 0, 0,10},
+  { 6, 6, 6, 6,   6, 0, 0, 3,   0, 3, 0, 0,   0, 0, 0,10},
+  { 6, 5, 5, 5,   5, 5, 5, 3,   4, 4, 5, 5,   5, 5, 5, 5}
 };
 
-float viewing_angle = 62;
+float viewing_angle = 180;
 int viewer_height = 32;
-int xview = 8 * 64;
-int yview = 8 * 64;
+int xview = 6 * 64;
+int yview = 10 * 64;
 
 static int init(int width, int height);
 static int shutdown();
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 void draw_maze(map_type map, Buffer* buffer, int xview, int yview, float viewing_angle);
+void draw_box(Buffer* buffer);
 
 int main()
 {
@@ -78,8 +80,6 @@ int main()
     // Create main buffer
     Buffer* buffer = nasl_buffer_create(buffer_width, buffer_height);
     nasl_buffer_set_mainbuffer(buffer);
-    // Clear main buffer to a dark grey color
-    //nasl_buffer_clear(buffer, GREY1);
 
     // Main loop
     while(nasl_graphics_running())
@@ -89,7 +89,8 @@ int main()
 
         // draw box and maze
         nasl_buffer_clear(buffer, GREY1);
-        draw_maze(buffer);
+    	draw_maze(map, buffer, xview, yview, viewing_angle);
+        draw_box(buffer);
 
         // Render the main buffer
         nasl_graphics_render(buffer);
@@ -109,7 +110,7 @@ int main()
 void draw_maze(map_type map, Buffer* buffer, int xview, int yview, float viewing_angle)
 {
 
-	int sy, offset;				// pixel y position and offset
+	int offset; 				// pixel y position and offset
 	float xd, yd;				// distance to next wall in x and y
 	int grid_x, grid_y;			// coordinates of x and y grid lines
 	float xcross_x, xcross_y;	// ray intersection coordinates
@@ -155,7 +156,7 @@ void draw_maze(map_type map, Buffer* buffer, int xview, int yview, float viewing
 		// cheat (again) to avoid divide-by-zero error:
 		if(slope == 0.0) slope = 0.0001;
 
-		int color = 15;
+		uint32_t color = RED;
 
 		// cast ray from grid line to grid line:
 		for(;;)
@@ -204,7 +205,7 @@ void draw_maze(map_type map, Buffer* buffer, int xview, int yview, float viewing
 				// is there a maze cube here? If so, stop looping:
 				if(map[xmaze][ymaze])
 				{
-					color = map[xmaze][ymaze];
+					color = c64_palette[map[xmaze][ymaze]];
 					break;
 				}
 			}
@@ -221,7 +222,7 @@ void draw_maze(map_type map, Buffer* buffer, int xview, int yview, float viewing
 				// is there a maze cube here? If so, stop looping:
 				if(map[xmaze][ymaze])
 				{
-					color = map[xmaze][ymaze];
+					color = c64_palette[map[xmaze][ymaze]];
 					break;
 				}
 			}
@@ -265,7 +266,7 @@ void draw_maze(map_type map, Buffer* buffer, int xview, int yview, float viewing
 		for(int i = 0; i < height; i++)
 		{
 			// set wall pixels to white:
-			screen[offset] = color;
+            buffer->pixels[offset] = color;
 
 			// advance to next vertical pixel:
 			offset += 320;
@@ -273,6 +274,12 @@ void draw_maze(map_type map, Buffer* buffer, int xview, int yview, float viewing
 
 	} // for each column in viewport
 
+}
+
+void draw_box(Buffer* buffer)
+{
+	//left, top, right, bottom
+	nasl_draw_rect(buffer, VIEWPORT_LEFT, VIEWPORT_TOP, VIEWPORT_RIGHT, VIEWPORT_BOT, GREY3);
 }
 
 
@@ -287,42 +294,41 @@ static int init(int width, int height)
 
 static void handle_keypress(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+    int newx, newy = 0;
+    ///*
     // Do we want to move forward?
     if(key == GLFW_KEY_W)
     {
-        newpos.x = pos.x + increment[direction].x;
-        newpos.y = pos.y + increment[direction].y;
-        if(!maze[newpos.x][newpos.y])
+        newx = xview;
+        newy = yview;
+        if(!map[newx][newy])
         {
-            pos.x = newpos.x;
-            pos.y = newpos.y;
+            xview = newx;
+            yview = newy;
         }
     }
     // or do we want to go backward?
     else if(key == GLFW_KEY_S)
     {
-        newpos.x = pos.x - increment[direction].x;
-        newpos.y = pos.y - increment[direction].y;
-        if(!maze[newpos.x][newpos.y])
+        newx = xview;
+        newy = yview;
+        if(!map[newx][newy])
         {
-            pos.x = newpos.x;
-            pos.y = newpos.y;
+            xview = newx;
+            yview = newy;
         }
     }
     // Do we want to turn left?
     if(key == GLFW_KEY_A)
     {
-        --direction;
-        if(direction < 0)
-            direction = 3;
+        viewing_angle -= 0.1;
     }
     // or do we want to turn right?
     else if(key == GLFW_KEY_D)
     {
-        direction++;
-        if(direction > 3)
-            direction = 0;
+        viewing_angle += 0.1;
     }
+    //*/
 }
 
 
