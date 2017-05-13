@@ -75,7 +75,9 @@ int main()
     int buffer_height = 240;
 
     init(buffer_width, buffer_height);
-
+    
+    glfwSwapInterval(1);
+    
     // Create main buffer
     Buffer* buffer = nasl_buffer_create(buffer_width, buffer_height);
     nasl_buffer_set_mainbuffer(buffer);
@@ -86,7 +88,6 @@ int main()
         oldTime = time;
         time = glfwGetTime();
         frameTime = time - oldTime; //frameTime is the time this frame has taken, in seconds
-        //printf("%f\n", 1.0 / frameTime); //FPS counter
 
         // Event polling
         nasl_graphics_poll_events();
@@ -108,30 +109,6 @@ int main()
     shutdown();
 }
 
-//Fast vertical line from (x,y1) to (x,y2), with rgb color
-void vert_line_buf(int x, int y1, int y2, uint32_t color, Buffer* buffer)
-{
-	if(y2 < y1)
-	{ // swap y1 and y2
-		y1 += y2;
-		y2 = y1 - y2;
-		y1 -= y2;
-	}
-	if(y2 < 0 || y1 >= buffer->height || x < 0 || x >= buffer->width)
-	{ // no single point of the line is on the screen
-		return;
-	}
-	if(y1 < 0) y1 = 0; // clip
-	if(y2 >= buffer->width) y2 = buffer->height - 1; // clip
-	for(int y = y1; y <= y2; y++)
-	{
-		nasl_buffer_set_pixel(buffer, x, y, color);
-	}
-}
-
-// Draws a raycast image in the viewport of the maze represented in array
-// map as seen from position xview, yview by a viewer looking at an angle
-// viewer_angle, where angle 0 is due north. (Angles measured in radians)
 void draw_maze(Buffer* buffer)
 {
     for(int x = 0; x < buffer->width; x++)
@@ -218,18 +195,18 @@ void draw_maze(Buffer* buffer)
       uint32_t color;
       switch(worldMap[mapX][mapY])
       {
-        case 1:  color = RED;  break; //red
-        case 2:  color = GREEN;  break; //green
-        case 3:  color = BLUE;   break; //blue
-        case 4:  color = WHITE;  break; //white
-        default: color = YELLOW; break; //yellow
+        case 1:  color = RED;  break;
+        case 2:  color = GREEN;  break;
+        case 3:  color = BLUE;   break;
+        case 4:  color = VIOLET;  break;
+        default: color = YELLOW; break;
       }
 
       //give x and y sides different brightness
       if (side == 1) {color = color / 2;}
 
       //draw the pixels of the stripe as a vertical line
-      vert_line_buf(x, drawStart, drawEnd, color, buffer);
+      nasl_draw_vertical_line(buffer, x, drawStart, drawEnd, color);
     }
 }
 
@@ -249,12 +226,12 @@ static int init(int width, int height)
     return 1;
 }
 
-static void handle_keypress(GLFWwindow* window, int key, int scancode, int action, int mods)
+static void handle_keypress(int key, int action)
 {
     //speed modifiers
     double moveSpeed = frameTime * 10.0; //the constant value is in squares/second
     double rotSpeed = frameTime * 3.0; //the constant value is in radians/second
-    ///*
+
     // Do we want to move forward?
     if(key == GLFW_KEY_W)
     {
@@ -289,7 +266,6 @@ static void handle_keypress(GLFWwindow* window, int key, int scancode, int actio
       planeX = planeX * cos(-rotSpeed) - planeY * sin(-rotSpeed);
       planeY = oldPlaneX * sin(-rotSpeed) + planeY * cos(-rotSpeed);
     }
-    //*/
 }
 
 
@@ -299,7 +275,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     {
         glfwSetWindowShouldClose(window, GLFW_TRUE);
     } else {
-        handle_keypress(window, key, scancode, action, mods);
+        handle_keypress(key, action);
     }
 }
 
