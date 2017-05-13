@@ -22,52 +22,51 @@
 #include "nasl_draw.h"
 
 
-const int  WALL_HEIGHT = 64;
-const int VIEWER_HEIGHT = 32;
-const int VIEWER_DISTANCE = 128;
-const int VIEWPORT_LEFT = 40;
-const int VIEWPORT_RIGHT = 280;
-const int VIEWPORT_TOP = 50;
-const int VIEWPORT_BOT = 150;
-const int VIEWPORT_HEIGHT = 100;
-const int VIEWPORT_CENTER = 100;
+#define mapWidth 24
+#define mapHeight 24
 
-
-typedef int map_type[16][16];
-
-map_type map =
+int worldMap[mapWidth][mapHeight]=
 {
-  { 5, 5, 5, 5,   5, 5, 5, 5,   5, 5, 5, 5,   5, 5, 5, 5},
-  { 6, 5, 0, 5,   0, 0, 0, 2,   0, 0, 0, 0,   0, 0, 0, 5},
-  { 6, 0, 0, 0,   0, 0, 0, 0,   3, 0, 0, 0,   0, 0, 0, 5},
-  { 6, 0, 0, 0,   0, 0, 0, 0,   0, 6, 0, 0,   0, 0, 0, 5},
-
-  { 7, 0, 0, 0,   0, 0, 0, 0,   0, 0, 5, 4,   0, 0, 0, 5},
-  { 4, 0, 0, 0,   0, 0, 0, 0,   0, 0,10,10,   0, 0, 0, 5},
-  {10, 0, 0, 0,   0, 0, 0, 0,   0, 0, 0,10,  10, 0, 0, 5},
-  {10, 0, 0, 0,   0, 0, 0, 0,   0, 0, 0, 0,  10, 0, 0, 5},
-
-  {10, 6, 6, 0,   0, 0, 0, 0,   0, 0, 0,10,  10, 0, 0, 5},
-  { 4, 0, 0, 0,   0, 0, 0, 0,   0, 0,10,10,   0, 0, 0, 5},
-  { 4, 6, 6, 0,   0, 0, 5, 4,   0, 3, 0, 0,   0, 0, 0, 5},
-  { 6, 0, 0, 0,   0, 0, 0, 4,   0, 3, 0, 0,   0, 0, 0, 5},
-
-  { 6, 0, 0, 0,   0, 0, 0, 3,   0, 0, 0, 0,   0, 0, 0, 2},
-  { 6, 0, 0, 0,   0, 0, 0, 3,   0, 3, 0, 0,   0, 0, 0,10},
-  { 6, 6, 6, 6,   6, 0, 0, 3,   0, 3, 0, 0,   0, 0, 0,10},
-  { 6, 5, 5, 5,   5, 5, 5, 3,   4, 4, 5, 5,   5, 5, 5, 5}
+  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,2,2,2,2,2,0,0,0,0,3,0,3,0,3,0,0,0,1},
+  {1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,3,0,0,0,3,0,0,0,1},
+  {1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,2,2,0,2,2,0,0,0,0,3,0,3,0,3,0,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,4,0,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,4,0,0,0,0,5,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,4,0,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,4,0,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 };
 
-float viewing_angle = 180;
-int viewer_height = 32;
-int xview = 6 * 64;
-int yview = 10 * 64;
+double posX = 22, posY = 12;  //x and y start position
+double dirX = -1, dirY = 0; //initial direction vector
+double planeX = 0, planeY = 0.66; //the 2d raycaster version of camera plane
+
+double time = 0; //time of current frame
+double oldTime = 0; //time of previous frame
+double frameTime = 0;
 
 static int init(int width, int height);
 static int shutdown();
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
-void draw_maze(map_type map, Buffer* buffer, int xview, int yview, float viewing_angle);
+void draw_maze(Buffer* buffer);
+
 void draw_box(Buffer* buffer);
 
 int main()
@@ -84,13 +83,18 @@ int main()
     // Main loop
     while(nasl_graphics_running())
     {
+        oldTime = time;
+        time = glfwGetTime();
+        frameTime = time - oldTime; //frameTime is the time this frame has taken, in seconds
+        //printf("%f\n", 1.0 / frameTime); //FPS counter
+
         // Event polling
         nasl_graphics_poll_events();
 
         // draw box and maze
         nasl_buffer_clear(buffer, GREY1);
-    	draw_maze(map, buffer, xview, yview, viewing_angle);
-        draw_box(buffer);
+    	draw_maze(buffer);
+        //draw_box(buffer);
 
         // Render the main buffer
         nasl_graphics_render(buffer);
@@ -104,182 +108,135 @@ int main()
     shutdown();
 }
 
+//Fast vertical line from (x,y1) to (x,y2), with rgb color
+void vert_line_buf(int x, int y1, int y2, uint32_t color, Buffer* buffer)
+{
+	if(y2 < y1)
+	{ // swap y1 and y2
+		y1 += y2;
+		y2 = y1 - y2;
+		y1 -= y2;
+	}
+	if(y2 < 0 || y1 >= buffer->height || x < 0 || x >= buffer->width)
+	{ // no single point of the line is on the screen
+		return;
+	}
+	if(y1 < 0) y1 = 0; // clip
+	if(y2 >= buffer->width) y2 = buffer->height - 1; // clip
+	for(int y = y1; y <= y2; y++)
+	{
+		nasl_buffer_set_pixel(buffer, x, y, color);
+	}
+}
+
 // Draws a raycast image in the viewport of the maze represented in array
 // map as seen from position xview, yview by a viewer looking at an angle
 // viewer_angle, where angle 0 is due north. (Angles measured in radians)
-void draw_maze(map_type map, Buffer* buffer, int xview, int yview, float viewing_angle)
+void draw_maze(Buffer* buffer)
 {
+    for(int x = 0; x < buffer->width; x++)
+    {
+      //calculate ray position and direction
+      double cameraX = 2 * x / (double)buffer->width - 1; //x-coordinate in camera space
+      double rayPosX = posX;
+      double rayPosY = posY;
+      double rayDirX = dirX + planeX * cameraX;
+      double rayDirY = dirY + planeY * cameraX;
+      //which box of the map we're in
+      int mapX = (int)rayPosX;
+      int mapY = (int)rayPosY;
 
-	int offset; 				// pixel y position and offset
-	float xd, yd;				// distance to next wall in x and y
-	int grid_x, grid_y;			// coordinates of x and y grid lines
-	float xcross_x, xcross_y;	// ray intersection coordinates
-	float ycross_x, ycross_y;
+      //length of ray from current position to next x or y-side
+      double sideDistX;
+      double sideDistY;
 
-	int xdist, ydist;
-	int xmaze, ymaze;
-	int distance;
+       //length of ray from one x or y-side to next x or y-side
+      double deltaDistX = sqrt(1 + (rayDirY * rayDirY) / (rayDirX * rayDirX));
+      double deltaDistY = sqrt(1 + (rayDirX * rayDirX) / (rayDirY * rayDirY));
+      double perpWallDist;
 
-	// *** The raycasting begins:
+      //what direction to step in x or y-direction (either +1 or -1)
+      int stepX;
+      int stepY;
 
-	// loop through all columns of pixels in viewport:
-	for(int column = VIEWPORT_LEFT; column < VIEWPORT_RIGHT; column++)
-	{
-		// calculate horizontal angle of ray relative to center ray:
-		float column_angle = atan((float)(column - 160) / VIEWER_DISTANCE);
+      int hit = 0; //was there a wall hit?
+      int side; //was a NS or a EW wall hit?
+      //calculate step and initial sideDist
+      if (rayDirX < 0)
+      {
+        stepX = -1;
+        sideDistX = (rayPosX - mapX) * deltaDistX;
+      }
+      else
+      {
+        stepX = 1;
+        sideDistX = (mapX + 1.0 - rayPosX) * deltaDistX;
+      }
+      if (rayDirY < 0)
+      {
+        stepY = -1;
+        sideDistY = (rayPosY - mapY) * deltaDistY;
+      }
+      else
+      {
+        stepY = 1;
+        sideDistY = (mapY + 1.0 - rayPosY) * deltaDistY;
+      }
+      //perform DDA
+      while (hit == 0)
+      {
+        //jump to next map square, OR in x-direction, OR in y-direction
+        if (sideDistX < sideDistY)
+        {
+          sideDistX += deltaDistX;
+          mapX += stepX;
+          side = 0;
+        }
+        else
+        {
+          sideDistY += deltaDistY;
+          mapY += stepY;
+          side = 1;
+        }
+        //Check if ray has hit a wall
+        if (worldMap[mapX][mapY] > 0) hit = 1;
+      }
+      //Calculate distance projected on camera direction (oblique distance will give fisheye effect!)
+      if (side == 0) perpWallDist = (mapX - rayPosX + (1 - stepX) / 2) / rayDirX;
+      else           perpWallDist = (mapY - rayPosY + (1 - stepY) / 2) / rayDirY;
 
-		// calculate angle of ray relative to maze coordinates:
-		float radians = viewing_angle + column_angle;
+      //Calculate height of line to draw on screen
+      int lineHeight = (int)(buffer->height / perpWallDist);
 
-		// rotate endpoint of ray to viewing angle:
-		int x2 = 1024 * (cos(radians));
-		int y2 = 1024 * (sin(radians));
+      //calculate lowest and highest pixel to fill in current stripe
+      int drawStart = -lineHeight / 2 + buffer->height / 2;
+      if(drawStart < 0)drawStart = 0;
+      int drawEnd = lineHeight / 2 + buffer->height / 2;
+      if(drawEnd >= buffer->height)drawEnd = buffer->height - 1;
 
-		// translate relative to viewer's position:
-		x2 += xview;
-		y2 += yview;
+      //choose wall color
+      uint32_t color;
+      switch(worldMap[mapX][mapY])
+      {
+        case 1:  color = RED;  break; //red
+        case 2:  color = GREEN;  break; //green
+        case 3:  color = BLUE;   break; //blue
+        case 4:  color = WHITE;  break; //white
+        default: color = YELLOW; break; //yellow
+      }
 
-		// initialize ray at viewer's position:
-		float x = xview;
-		float y = yview;
+      //give x and y sides different brightness
+      if (side == 1) {color = color / 2;}
 
-		// find difference in x,y coordates along the ray:
-		int xdiff = x2 - xview;
-		int ydiff = y2 - yview;
-
-		// cheat to avoid divide-by-zero error:
-		if(xdiff == 0) xdiff = 1;
-
-		// get slope of ray:
-		float slope = (float)ydiff / xdiff;
-
-		// cheat (again) to avoid divide-by-zero error:
-		if(slope == 0.0) slope = 0.0001;
-
-		uint32_t color = RED;
-
-		// cast ray from grid line to grid line:
-		for(;;)
-		{
-			// if ray direction positive in x, get next x grid line:
-			if(xdiff > 0) grid_x = ((int)x & 0xffc0) + 64;
-
-			// if ray direction negative in x, get last x grid line:
-			else grid_x = ((int)x & 0xffc0) - 1;
-
-			// if ray direction positive in y, get next y grid line:
-			if(ydiff > 0) grid_y = ((int)y & 0xffc0) + 64;
-
-			// if ray direction negative in y, get last y grid line:
-			else grid_y = ((int)y & 0xffc0) - 1;
-
-			// get x,y coordinates where ray crosses x grid line:
-			xcross_x = grid_x;
-			xcross_y = y + slope * (grid_x - x);
-
-			// get x,y coordinates where ray crosses y grid line:
-			ycross_x = x + (grid_y - y) / slope;
-			ycross_y = grid_y;
-
-			// get distance to x grid line:
-			xd = xcross_x - x;
-			yd = xcross_y - y;
-			xdist = sqrt(xd * xd + yd * yd);
-
-			// get distance to y grid line:
-			xd = ycross_x - x;
-			yd = ycross_y - y;
-			ydist = sqrt(xd * xd + yd * yd);
-
-			// if x grid line is closer ...
-			if(xdist < ydist)
-			{
-				// calculate maze grid coordinates of square:
-				xmaze = xcross_x / 64;
-				ymaze = xcross_y / 64;
-
-				// set x and y to point of ray intersection:
-				x = xcross_x;
-				y = xcross_y;
-
-				// is there a maze cube here? If so, stop looping:
-				if(map[xmaze][ymaze])
-				{
-					color = c64_palette[map[xmaze][ymaze]];
-					break;
-				}
-			}
-			else	// if y grid line is closer:
-			{
-				// calculate maze grid coordinates of square:
-				xmaze = ycross_x / 64;
-				ymaze = ycross_y / 64;
-
-				// set x and y to piont of ray intersection:
-				x = ycross_x;
-				y = ycross_y;
-
-				// is there a maze cube here? If so, stop looping:
-				if(map[xmaze][ymaze])
-				{
-					color = c64_palette[map[xmaze][ymaze]];
-					break;
-				}
-			}
-
-		} // raycast loop
-
-		// *** Prepare to draw wall column:
-
-		// get distance from viewer to intersection point:
-		xd = x - xview;
-		yd = y - yview;
-		distance = (long)sqrt(xd * xd + yd * yd) * cos(column_angle);
-		if(distance == 0) distance = 1;
-
-		// calculate visible height of walls:
-		int height = VIEWER_DISTANCE * WALL_HEIGHT / distance;
-
-		// calculate bottom of wall on screen:
-		int bot = VIEWER_DISTANCE * VIEWER_HEIGHT / distance + VIEWPORT_CENTER;
-
-		// calculate top of wall on screen:
-		int top = bot - height + 1;
-
-		// clip wall to viewport
-		if(top < VIEWPORT_TOP)
-		{
-			height -= (VIEWPORT_TOP - top);
-			top = VIEWPORT_TOP;
-		}
-		if((top + height) > VIEWPORT_BOT)
-		{
-			height -= (bot - VIEWPORT_BOT);
-		}
-
-		// *** Draw the wall column:
-
-		// find video offset of top pixel in wall column:
-		offset = top * 320 + column;
-
-		// loop through all pixels in wall column:
-		for(int i = 0; i < height; i++)
-		{
-			// set wall pixels to white:
-            buffer->pixels[offset] = color;
-
-			// advance to next vertical pixel:
-			offset += 320;
-		}
-
-	} // for each column in viewport
-
+      //draw the pixels of the stripe as a vertical line
+      vert_line_buf(x, drawStart, drawEnd, color, buffer);
+    }
 }
 
 void draw_box(Buffer* buffer)
 {
 	//left, top, right, bottom
-	nasl_draw_rect(buffer, VIEWPORT_LEFT, VIEWPORT_TOP, VIEWPORT_RIGHT, VIEWPORT_BOT, GREY3);
+	//nasl_draw_rect(buffer, VIEWPORT_LEFT, VIEWPORT_TOP, VIEWPORT_RIGHT, VIEWPORT_BOT, GREY3);
 }
 
 
@@ -294,39 +251,43 @@ static int init(int width, int height)
 
 static void handle_keypress(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    int newx, newy = 0;
+    //speed modifiers
+    double moveSpeed = frameTime * 10.0; //the constant value is in squares/second
+    double rotSpeed = frameTime * 3.0; //the constant value is in radians/second
     ///*
     // Do we want to move forward?
     if(key == GLFW_KEY_W)
     {
-        newx = xview;
-        newy = yview;
-        if(!map[newx][newy])
-        {
-            xview = newx;
-            yview = newy;
-        }
+        if(!worldMap[(int)(posX + dirX * moveSpeed)][(int)(posY)]) posX += dirX * moveSpeed;
+        if(!worldMap[(int)(posX)][(int)(posY + dirY * moveSpeed)]) posY += dirY * moveSpeed;
     }
     // or do we want to go backward?
     else if(key == GLFW_KEY_S)
     {
-        newx = xview;
-        newy = yview;
-        if(!map[newx][newy])
-        {
-            xview = newx;
-            yview = newy;
-        }
+        if(!worldMap[(int)(posX - dirX * moveSpeed)][(int)(posY)]) posX -= dirX * moveSpeed;
+        if(!worldMap[(int)(posX)][(int)(posY - dirY * moveSpeed)]) posY -= dirY * moveSpeed;
     }
     // Do we want to turn left?
     if(key == GLFW_KEY_A)
     {
-        viewing_angle -= 0.1;
+      //both camera direction and camera plane must be rotated
+      double oldDirX = dirX;
+      dirX = dirX * cos(rotSpeed) - dirY * sin(rotSpeed);
+      dirY = oldDirX * sin(rotSpeed) + dirY * cos(rotSpeed);
+      double oldPlaneX = planeX;
+      planeX = planeX * cos(rotSpeed) - planeY * sin(rotSpeed);
+      planeY = oldPlaneX * sin(rotSpeed) + planeY * cos(rotSpeed);
     }
     // or do we want to turn right?
     else if(key == GLFW_KEY_D)
     {
-        viewing_angle += 0.1;
+      //both camera direction and camera plane must be rotated
+      double oldDirX = dirX;
+      dirX = dirX * cos(-rotSpeed) - dirY * sin(-rotSpeed);
+      dirY = oldDirX * sin(-rotSpeed) + dirY * cos(-rotSpeed);
+      double oldPlaneX = planeX;
+      planeX = planeX * cos(-rotSpeed) - planeY * sin(-rotSpeed);
+      planeY = oldPlaneX * sin(-rotSpeed) + planeY * cos(-rotSpeed);
     }
     //*/
 }
