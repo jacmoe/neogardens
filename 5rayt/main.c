@@ -23,8 +23,6 @@
 #include "nasl_sprite.h"
 
 
-#define texWidth 64
-#define texHeight 64
 #define mapWidth 24
 #define mapHeight 24
 
@@ -214,19 +212,18 @@ void draw_maze(Buffer* buffer, SpriteSheet textures)
       wallX -= floor((wallX));
 
       //x coordinate on the texture
-      int texX = (int)(wallX * (double)(texWidth));
-      if(side == 0 && rayDirX > 0) texX = texWidth - texX - 1;
-      if(side == 1 && rayDirY < 0) texX = texWidth - texX - 1;
+      int texX = (int)(wallX * (double)(textures.width));
+      if(side == 0 && rayDirX > 0) texX = textures.width - texX - 1;
+      if(side == 1 && rayDirY < 0) texX = textures.width - texX - 1;
 
       for(int y = drawStart; y < drawEnd; y++)
       {
         int d = y * 256 - buffer->height * 128 + lineHeight * 128;  //256 and 128 factors to avoid floats
-        int texY = ((d * texHeight) / lineHeight) / 256;
+        int texY = ((d * textures.height) / lineHeight) / 256;
         uint32_t color = nasl_buffer_get_pixel(texture, texX, texY);
         //make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
         if(side == 1) color = (color >> 1) & 8355711;
         nasl_buffer_set_pixel(buffer, x, y, color);
-        //buffer[y][x] = color;
       }
     }
 }
