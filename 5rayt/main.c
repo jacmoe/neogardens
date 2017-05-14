@@ -70,8 +70,6 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 void draw_maze(Buffer* buffer, SpriteSheet textures);
 
-void draw_box(Buffer* buffer);
-
 int main()
 {
     int buffer_width = 320;
@@ -233,16 +231,9 @@ void draw_maze(Buffer* buffer, SpriteSheet textures)
     }
 }
 
-void draw_box(Buffer* buffer)
-{
-	//left, top, right, bottom
-	//nasl_draw_rect(buffer, VIEWPORT_LEFT, VIEWPORT_TOP, VIEWPORT_RIGHT, VIEWPORT_BOT, GREY3);
-}
-
-
 static int init(int width, int height)
 {
-    nasl_graphics_init(width, height, "Neogardens Wireframe Maze Demo", 0, 3);
+    nasl_graphics_init(width, height, "Neogardens Textured Raycast Maze Demo", 0, 3);
 
     glfwSetKeyCallback(nasl_graphics_get_window(), key_callback);
 
