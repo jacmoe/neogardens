@@ -61,6 +61,11 @@ double time = 0; //time of current frame
 double oldTime = 0; //time of previous frame
 double frameTime = 0;
 
+int move_forwards = 0;
+int move_backwards = 0;
+int turn_left = 0;
+int turn_right = 0;
+
 static int init(int width, int height);
 static int shutdown();
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -86,6 +91,45 @@ int main()
         oldTime = time;
         time = glfwGetTime();
         frameTime = time - oldTime; //frameTime is the time this frame has taken, in seconds
+
+        //speed modifiers
+        double moveSpeed = frameTime * 5.0; //the constant value is in squares/second
+        double rotSpeed = frameTime * 2.0;   //the constant value is in radians/second
+
+        if(move_forwards)
+        {
+            if (!worldMap[(int)(posX + dirX * moveSpeed)][(int)(posY)])
+                posX += dirX * moveSpeed;
+            if (!worldMap[(int)(posX)][(int)(posY + dirY * moveSpeed)])
+                posY += dirY * moveSpeed;
+        }
+        if(move_backwards)
+        {
+            if (!worldMap[(int)(posX - dirX * moveSpeed)][(int)(posY)])
+                posX -= dirX * moveSpeed;
+            if (!worldMap[(int)(posX)][(int)(posY - dirY * moveSpeed)])
+                posY -= dirY * moveSpeed;
+        }
+        if(turn_left)
+        {
+            //both camera direction and camera plane must be rotated
+            double oldDirX = dirX;
+            dirX = dirX * cos(rotSpeed) - dirY * sin(rotSpeed);
+            dirY = oldDirX * sin(rotSpeed) + dirY * cos(rotSpeed);
+            double oldPlaneX = planeX;
+            planeX = planeX * cos(rotSpeed) - planeY * sin(rotSpeed);
+            planeY = oldPlaneX * sin(rotSpeed) + planeY * cos(rotSpeed);
+        }
+        if(turn_right)
+        {
+            //both camera direction and camera plane must be rotated
+            double oldDirX = dirX;
+            dirX = dirX * cos(-rotSpeed) - dirY * sin(-rotSpeed);
+            dirY = oldDirX * sin(-rotSpeed) + dirY * cos(-rotSpeed);
+            double oldPlaneX = planeX;
+            planeX = planeX * cos(-rotSpeed) - planeY * sin(-rotSpeed);
+            planeY = oldPlaneX * sin(-rotSpeed) + planeY * cos(-rotSpeed);
+        }
 
         // Event polling
         nasl_graphics_poll_events();
@@ -220,43 +264,37 @@ static int init(int width, int height)
 
 static void handle_keypress(int key, int action)
 {
-    //speed modifiers
-    double moveSpeed = frameTime * 10.0; //the constant value is in squares/second
-    double rotSpeed = frameTime * 3.0; //the constant value is in radians/second
-
     // Do we want to move forward?
-    if(key == GLFW_KEY_W)
+    if (key == GLFW_KEY_W)
     {
-        if(!worldMap[(int)(posX + dirX * moveSpeed)][(int)(posY)]) posX += dirX * moveSpeed;
-        if(!worldMap[(int)(posX)][(int)(posY + dirY * moveSpeed)]) posY += dirY * moveSpeed;
+        if(action == GLFW_PRESS)
+            move_forwards = 1;
+        else if(action == GLFW_RELEASE)
+            move_forwards = 0;
     }
     // or do we want to go backward?
-    else if(key == GLFW_KEY_S)
+    else if (key == GLFW_KEY_S)
     {
-        if(!worldMap[(int)(posX - dirX * moveSpeed)][(int)(posY)]) posX -= dirX * moveSpeed;
-        if(!worldMap[(int)(posX)][(int)(posY - dirY * moveSpeed)]) posY -= dirY * moveSpeed;
+        if(action == GLFW_PRESS)
+            move_backwards = 1;
+        else if(action == GLFW_RELEASE)
+            move_backwards = 0;
     }
     // Do we want to turn left?
-    if(key == GLFW_KEY_A)
+    if (key == GLFW_KEY_A)
     {
-      //both camera direction and camera plane must be rotated
-      double oldDirX = dirX;
-      dirX = dirX * cos(rotSpeed) - dirY * sin(rotSpeed);
-      dirY = oldDirX * sin(rotSpeed) + dirY * cos(rotSpeed);
-      double oldPlaneX = planeX;
-      planeX = planeX * cos(rotSpeed) - planeY * sin(rotSpeed);
-      planeY = oldPlaneX * sin(rotSpeed) + planeY * cos(rotSpeed);
+        if(action == GLFW_PRESS)
+            turn_left = 1;
+        else if(action == GLFW_RELEASE)
+            turn_left = 0;
     }
     // or do we want to turn right?
-    else if(key == GLFW_KEY_D)
+    else if (key == GLFW_KEY_D)
     {
-      //both camera direction and camera plane must be rotated
-      double oldDirX = dirX;
-      dirX = dirX * cos(-rotSpeed) - dirY * sin(-rotSpeed);
-      dirY = oldDirX * sin(-rotSpeed) + dirY * cos(-rotSpeed);
-      double oldPlaneX = planeX;
-      planeX = planeX * cos(-rotSpeed) - planeY * sin(-rotSpeed);
-      planeY = oldPlaneX * sin(-rotSpeed) + planeY * cos(-rotSpeed);
+        if(action == GLFW_PRESS)
+            turn_right = 1;
+        else if(action == GLFW_RELEASE)
+            turn_right = 0;
     }
 }
 
