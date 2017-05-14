@@ -120,11 +120,11 @@ int main()
         } else if(xdelta > 0) {
             //both camera direction and camera plane must be rotated
             double oldDirX = dirX;
-            dirX = dirX * cos(-delta) - dirY * sin(-delta);
-            dirY = oldDirX * sin(-delta) + dirY * cos(-delta);
+            dirX = dirX * cos(delta) - dirY * sin(delta);
+            dirY = oldDirX * sin(delta) + dirY * cos(delta);
             double oldPlaneX = planeX;
-            planeX = planeX * cos(-delta) - planeY * sin(-delta);
-            planeY = oldPlaneX * sin(-delta) + planeY * cos(-delta);
+            planeX = planeX * cos(delta) - planeY * sin(delta);
+            planeY = oldPlaneX * sin(delta) + planeY * cos(delta);
         }
         //*/
         if(move_forwards)
