@@ -117,20 +117,6 @@ static Buffer *get_texture(SpriteSheet textures, int idx)
     return nasl_sprite_get(textures, row, col);
 }
 
-static uint32_t nasl_color_divide(uint32_t c, double intensity)
-{
-    uint8_t red = GETR(c);
-    uint8_t green = GETG(c);
-    uint8_t blue = GETB(c);
-
-    red /= intensity;
-    green /= intensity;
-    blue /= intensity;
-
-    return BUILDRGB(red, green, blue);
-}
-
-
 void draw_maze(Buffer *buffer, SpriteSheet textures)
 {
     for (int x = 0; x < buffer->width; x++)
@@ -243,12 +229,15 @@ void draw_maze(Buffer *buffer, SpriteSheet textures)
             int d = y * 256 - buffer->height * 128 + lineHeight * 128; //256 and 128 factors to avoid floats
             int texY = ((d * textures.height) / lineHeight) / 256;
             uint32_t color = nasl_buffer_get_pixel(texture, texX, texY);
-            //make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
-            if (side == 1)
-                color = (color >> 1) & 8355711;
                 
-            if(perpWallDist > 1)
-                color = nasl_color_divide(color, perpWallDist);
+            double scalefactor = 1.0 - ((perpWallDist / 576) * 100);
+            if(scalefactor > 1.0) scalefactor = 1.0;
+            if(scalefactor < 0.01) scalefactor = 0.01;
+            if(perpWallDist > 0.1)
+                color = nasl_color_scale(color, scalefactor);
+            
+            color = nasl_color_scale(color, 1.5);
+
             nasl_buffer_set_pixel(buffer, x, y, color);
         }
 
@@ -302,12 +291,12 @@ void draw_maze(Buffer *buffer, SpriteSheet textures)
             //floor
             texture = get_texture(textures, 5);
             uint32_t color = (texture->pixels[textures.width * floorTexY + floorTexX] >> 1) & 8355711;
-            color = (color >> 1) & 8355711;
+            color = nasl_color_scale(color, 0.3);
             nasl_buffer_set_pixel(buffer, x, y, color);
             //ceiling (symmetrical!)
             texture = get_texture(textures, 10);
             color = texture->pixels[textures.width * floorTexY + floorTexX];
-            color = (color >> 1) & 8355711;
+            color = nasl_color_scale(color, 0.3);
             nasl_buffer_set_pixel(buffer, x, buffer->height - y, color);
         }
     }

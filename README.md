@@ -11,6 +11,7 @@ Instead of C++, DosBox, Borland C 3.1 and TASM, this project uses C, Glfw3 and O
 ![Neogardens Solid Color Raycast Maze Demo][4rays]
 ![Neogardens Textured Raycast Maze Demo][5rayt]
 ![Neogardens Floor and Ceiling Textured Raycast Maze Demo][6rayf]
+![Neogardens Lightsourced Raycast Maze Demo][7rayl]
 
 
 [nasl]: https://github.com/jacmoe/nasl "Nasl is Not A Sixteen Bit Library"
@@ -20,3 +21,4 @@ Instead of C++, DosBox, Borland C 3.1 and TASM, this project uses C, Glfw3 and O
 [4rays]: https://github.com/jacmoe/neogardens/raw/master/4rays.jpg "Neogardens Solid Color Raycast Maze Demo"
 [5rayt]: https://github.com/jacmoe/neogardens/raw/master/5rayt.jpg "Neogardens Textured Raycast Maze Demo"
 [6rayf]: https://github.com/jacmoe/neogardens/raw/master/6rayf.jpg "Neogardens Floor and Ceiling Textured Raycast Maze Demo"
+[7rayl]: https://github.com/jacmoe/neogardens/raw/master/7rayl.jpg "Neogardens Lightsourced Raycast Maze Demo"
