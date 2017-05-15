@@ -93,6 +93,9 @@ int main()
     // Load textures
     SpriteSheet textures = nasl_sprite_load("assets/textures/sjswalls2.bmp", 4, 3);
 
+    // Load font
+    SpriteSheet ascii = nasl_sprite_load("assets/fonts/ascii.png", 16, 16);
+
     int win_width, win_height;
     glfwGetWindowSize(nasl_graphics_get_window(), &win_width, &win_height);
     // Main loop
@@ -106,8 +109,8 @@ int main()
         double moveSpeed = frameTime * 5.0; //the constant value is in squares/second
         double rotSpeed = frameTime * 2.0;   //the constant value is in radians/second
 
-        /*
-        double delta = xdelta * 0.001;
+        ///*
+        double delta = xdelta * (frameTime * 0.1);
         if(xdelta < 0)
         {
             //both camera direction and camera plane must be rotated
@@ -117,6 +120,7 @@ int main()
             double oldPlaneX = planeX;
             planeX = planeX * cos(delta) - planeY * sin(delta);
             planeY = oldPlaneX * sin(delta) + planeY * cos(delta);
+            xdelta = 0.0;
         } else if(xdelta > 0) {
             //both camera direction and camera plane must be rotated
             double oldDirX = dirX;
@@ -125,6 +129,7 @@ int main()
             double oldPlaneX = planeX;
             planeX = planeX * cos(delta) - planeY * sin(delta);
             planeY = oldPlaneX * sin(delta) + planeY * cos(delta);
+            xdelta = 0.0;
         }
         //*/
         if(move_forwards)
@@ -168,7 +173,8 @@ int main()
         // draw box and maze
         nasl_buffer_clear(buffer, GREY1);
         draw_maze(buffer, textures);
-        //draw_box(buffer);
+        
+        nasl_draw_text(buffer, ascii, 10, buffer->height - 10, "WASD and mouse to move. ESC to quit");
 
         // Render the main buffer
         nasl_graphics_render(buffer);
@@ -179,6 +185,7 @@ int main()
     }
 
     nasl_sprite_delete(textures);
+    nasl_sprite_delete(ascii);
     // Destroy the main buffer
     nasl_buffer_destroy(buffer);
 
@@ -383,7 +390,7 @@ static int init(int width, int height)
 
     glfwSetKeyCallback(nasl_graphics_get_window(), key_callback);
     glfwSetCursorPosCallback(nasl_graphics_get_window(), cursor_position_callback);
-    //glfwSetInputMode(nasl_graphics_get_window(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+    glfwSetInputMode(nasl_graphics_get_window(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
     return 1;
 }
 
