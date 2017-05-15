@@ -170,17 +170,22 @@ int main()
         // Event polling
         nasl_graphics_poll_events();
 
-        // draw box and maze
+        // Clear buffer
         nasl_buffer_clear(buffer, GREY1);
+        
+        // Draw maze
         draw_maze(buffer, textures);
         
+        // Print instructions
         nasl_draw_text(buffer, ascii, 10, buffer->height - 10, "WASD and mouse to move. ESC to quit");
 
         // Render the main buffer
         nasl_graphics_render(buffer);
+        
         // Swap buffers
         nasl_graphics_present();
 
+        // Center mouse cursor
         glfwSetCursorPos(nasl_graphics_get_window(), win_width / 2, win_height / 2);
     }
 
