@@ -70,10 +70,8 @@ int mouse_y = 0;
 int xdelta = 0;
 int ydelta = 0;
 
-static int init(int width, int height);
-static int shutdown();
-static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
-void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
+static void init(int width, int height);
+static void shutdown();
 
 void draw_maze(Buffer *buffer, SpriteSheet textures);
 
@@ -84,7 +82,7 @@ int main()
 
     init(buffer_width, buffer_height);
 
-    glfwSwapInterval(1);
+    //glfwSwapInterval(1);
 
     // Create main buffer
     Buffer *buffer = nasl_buffer_create(buffer_width, buffer_height);
@@ -93,104 +91,119 @@ int main()
     // Load textures
     SpriteSheet textures = nasl_sprite_load("assets/textures/sjswalls2.bmp", 4, 3);
 
-    // Load font
-    SpriteSheet ascii = nasl_sprite_load("assets/fonts/ascii.png", 16, 16);
-
     int win_width, win_height;
-    glfwGetWindowSize(nasl_graphics_get_window(), &win_width, &win_height);
+    //glfwGetWindowSize(nasl_graphics_get_window(), &win_width, &win_height);
+
+    SDL_Event event;
+    int quit = 0;
+
     // Main loop
-    while (nasl_graphics_running())
+    while(!quit)
     {
-        oldTime = time;
-        time = glfwGetTime();
-        frameTime = time - oldTime; //frameTime is the time this frame has taken, in seconds
-
-        //speed modifiers
-        double moveSpeed = frameTime * 5.0; //the constant value is in squares/second
-        double rotSpeed = frameTime * 2.0;   //the constant value is in radians/second
-
-        ///*
-        double delta = xdelta * (frameTime * 0.1);
-        if(xdelta < 0)
+        while(SDL_PollEvent(&event))
         {
-            //both camera direction and camera plane must be rotated
-            double oldDirX = dirX;
-            dirX = dirX * cos(delta) - dirY * sin(delta);
-            dirY = oldDirX * sin(delta) + dirY * cos(delta);
-            double oldPlaneX = planeX;
-            planeX = planeX * cos(delta) - planeY * sin(delta);
-            planeY = oldPlaneX * sin(delta) + planeY * cos(delta);
-            xdelta = 0.0;
-        } else if(xdelta > 0) {
-            //both camera direction and camera plane must be rotated
-            double oldDirX = dirX;
-            dirX = dirX * cos(delta) - dirY * sin(delta);
-            dirY = oldDirX * sin(delta) + dirY * cos(delta);
-            double oldPlaneX = planeX;
-            planeX = planeX * cos(delta) - planeY * sin(delta);
-            planeY = oldPlaneX * sin(delta) + planeY * cos(delta);
-            xdelta = 0.0;
-        }
-        //*/
-        if(move_forwards)
-        {
-            if (!worldMap[(int)(posX + dirX * moveSpeed)][(int)(posY)])
-                posX += dirX * moveSpeed;
-            if (!worldMap[(int)(posX)][(int)(posY + dirY * moveSpeed)])
-                posY += dirY * moveSpeed;
-        }
-        if(move_backwards)
-        {
-            if (!worldMap[(int)(posX - dirX * moveSpeed)][(int)(posY)])
-                posX -= dirX * moveSpeed;
-            if (!worldMap[(int)(posX)][(int)(posY - dirY * moveSpeed)])
-                posY -= dirY * moveSpeed;
-        }
-        if(turn_left)
-        {
-            //both camera direction and camera plane must be rotated
-            double oldDirX = dirX;
-            dirX = dirX * cos(rotSpeed) - dirY * sin(rotSpeed);
-            dirY = oldDirX * sin(rotSpeed) + dirY * cos(rotSpeed);
-            double oldPlaneX = planeX;
-            planeX = planeX * cos(rotSpeed) - planeY * sin(rotSpeed);
-            planeY = oldPlaneX * sin(rotSpeed) + planeY * cos(rotSpeed);
-        }
-        if(turn_right)
-        {
-            //both camera direction and camera plane must be rotated
-            double oldDirX = dirX;
-            dirX = dirX * cos(-rotSpeed) - dirY * sin(-rotSpeed);
-            dirY = oldDirX * sin(-rotSpeed) + dirY * cos(-rotSpeed);
-            double oldPlaneX = planeX;
-            planeX = planeX * cos(-rotSpeed) - planeY * sin(-rotSpeed);
-            planeY = oldPlaneX * sin(-rotSpeed) + planeY * cos(-rotSpeed);
-        }
 
-        // Event polling
-        nasl_graphics_poll_events();
+            switch(event.type)
+            {
+                /* SDL_QUIT event (window close) */
+                case SDL_QUIT:
+                    quit = 1;
+                    break;
 
-        // Clear buffer
-        nasl_buffer_clear(buffer, GREY1);
-        
-        // Draw maze
-        draw_maze(buffer, textures);
-        
-        // Print instructions
-        nasl_draw_text(buffer, ascii, 10, buffer->height - 10, "WASD and mouse to move. ESC to quit");
+                default:
+                    break;
+            }
 
-        // Render the main buffer
-        nasl_graphics_render(buffer);
-        
-        // Swap buffers
-        nasl_graphics_present();
+            oldTime = time;
+            time = 1000;//glfwGetTime();
+            frameTime = time - oldTime; //frameTime is the time this frame has taken, in seconds
 
-        // Center mouse cursor
-        glfwSetCursorPos(nasl_graphics_get_window(), win_width / 2, win_height / 2);
+            //speed modifiers
+            double moveSpeed = frameTime * 5.0; //the constant value is in squares/second
+            double rotSpeed = frameTime * 2.0;   //the constant value is in radians/second
+
+            ///*
+            double delta = xdelta * (frameTime * 0.1);
+            if(xdelta < 0)
+            {
+                //both camera direction and camera plane must be rotated
+                double oldDirX = dirX;
+                dirX = dirX * cos(delta) - dirY * sin(delta);
+                dirY = oldDirX * sin(delta) + dirY * cos(delta);
+                double oldPlaneX = planeX;
+                planeX = planeX * cos(delta) - planeY * sin(delta);
+                planeY = oldPlaneX * sin(delta) + planeY * cos(delta);
+                xdelta = 0.0;
+            } else if(xdelta > 0) {
+                //both camera direction and camera plane must be rotated
+                double oldDirX = dirX;
+                dirX = dirX * cos(delta) - dirY * sin(delta);
+                dirY = oldDirX * sin(delta) + dirY * cos(delta);
+                double oldPlaneX = planeX;
+                planeX = planeX * cos(delta) - planeY * sin(delta);
+                planeY = oldPlaneX * sin(delta) + planeY * cos(delta);
+                xdelta = 0.0;
+            }
+            //*/
+            if(move_forwards)
+            {
+                if (!worldMap[(int)(posX + dirX * moveSpeed)][(int)(posY)])
+                    posX += dirX * moveSpeed;
+                if (!worldMap[(int)(posX)][(int)(posY + dirY * moveSpeed)])
+                    posY += dirY * moveSpeed;
+            }
+            if(move_backwards)
+            {
+                if (!worldMap[(int)(posX - dirX * moveSpeed)][(int)(posY)])
+                    posX -= dirX * moveSpeed;
+                if (!worldMap[(int)(posX)][(int)(posY - dirY * moveSpeed)])
+                    posY -= dirY * moveSpeed;
+            }
+            if(turn_left)
+            {
+                //both camera direction and camera plane must be rotated
+                double oldDirX = dirX;
+                dirX = dirX * cos(rotSpeed) - dirY * sin(rotSpeed);
+                dirY = oldDirX * sin(rotSpeed) + dirY * cos(rotSpeed);
+                double oldPlaneX = planeX;
+                planeX = planeX * cos(rotSpeed) - planeY * sin(rotSpeed);
+                planeY = oldPlaneX * sin(rotSpeed) + planeY * cos(rotSpeed);
+            }
+            if(turn_right)
+            {
+                //both camera direction and camera plane must be rotated
+                double oldDirX = dirX;
+                dirX = dirX * cos(-rotSpeed) - dirY * sin(-rotSpeed);
+                dirY = oldDirX * sin(-rotSpeed) + dirY * cos(-rotSpeed);
+                double oldPlaneX = planeX;
+                planeX = planeX * cos(-rotSpeed) - planeY * sin(-rotSpeed);
+                planeY = oldPlaneX * sin(-rotSpeed) + planeY * cos(-rotSpeed);
+            }
+
+            // Event polling
+            nasl_graphics_poll_events();
+
+            // Clear buffer
+            nasl_buffer_clear(buffer, GREY1);
+
+            // Draw maze
+            draw_maze(buffer, textures);
+
+            // Print instructions
+            nasl_draw_text(buffer, 10, buffer->height - 10, WHITE, FONT_SMALL, "WASD and mouse to move. ESC to quit");
+
+            // Render the main buffer
+            nasl_graphics_render(buffer);
+
+            // Swap buffers
+            nasl_graphics_present();
+
+            // Center mouse cursor
+            //glfwSetCursorPos(nasl_graphics_get_window(), win_width / 2, win_height / 2);
+        }
     }
 
     nasl_sprite_delete(textures);
-    nasl_sprite_delete(ascii);
     // Destroy the main buffer
     nasl_buffer_destroy(buffer);
 
@@ -389,16 +402,12 @@ void draw_maze(Buffer *buffer, SpriteSheet textures)
     }
 }
 
-static int init(int width, int height)
+static void init(int width, int height)
 {
     nasl_graphics_init(width, height, "Neogardens Lightsourced Raycast Maze Demo", 0, 3);
-
-    glfwSetKeyCallback(nasl_graphics_get_window(), key_callback);
-    glfwSetCursorPosCallback(nasl_graphics_get_window(), cursor_position_callback);
-    glfwSetInputMode(nasl_graphics_get_window(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-    return 1;
 }
 
+/*
 static void handle_keypress(int key, int action)
 {
     // Do we want to move forward?
@@ -434,31 +443,9 @@ static void handle_keypress(int key, int action)
             turn_right = 0;
     }
 }
+//*/
 
-void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
-{
-    xdelta = mouse_x - xpos;
-    ydelta = mouse_y - ypos;
-
-    mouse_x = xpos;
-    mouse_y = ypos;
-}
-
-static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
-{
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-    {
-        glfwSetWindowShouldClose(window, GLFW_TRUE);
-    }
-    else
-    {
-        handle_keypress(key, action);
-    }
-}
-
-static int shutdown()
+static void shutdown()
 {
     nasl_graphics_shutdown();
-
-    return 1;
 }

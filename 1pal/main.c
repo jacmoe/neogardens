@@ -18,9 +18,8 @@
 #include "nasl_graphics.h"
 #include "nasl_buffer.h"
 
-static int init(int width, int height);
-static int shutdown();
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+static void init(int width, int height);
+static void shutdown();
 
 int main()
 {
@@ -59,15 +58,32 @@ int main()
     // Destroy the palette buffer
     nasl_buffer_destroy(palette_buffer);
 
+
+    SDL_Event event;
+    int quit = 0;
+
     // Main loop
-    while(nasl_graphics_running())
+    while(!quit)
     {
-        // Event polling
-        nasl_graphics_poll_events();
-        // Render the main buffer
-        nasl_graphics_render(buffer);
-        // Swap buffers
-        nasl_graphics_present();
+        while(SDL_PollEvent(&event))
+        {
+
+            switch(event.type)
+            {
+                /* SDL_QUIT event (window close) */
+                case SDL_QUIT:
+                    quit = 1;
+                    break;
+
+                default:
+                    break;
+            }
+
+            // Render the main buffer
+            nasl_graphics_render(buffer);
+            // Swap buffers
+            nasl_graphics_present();
+        }
     }
 
     // Destroy the main buffer
@@ -76,24 +92,12 @@ int main()
     shutdown();
 }
 
-static int init(int width, int height)
+static void init(int width, int height)
 {
     nasl_graphics_init(width, height, "Neogardens Palette Demo", 0, 3);
-
-    glfwSetKeyCallback(nasl_graphics_get_window(), key_callback);
-
-    return 1;
 }
 
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, GLFW_TRUE);
-}
-
-static int shutdown()
+static void shutdown()
 {
     nasl_graphics_shutdown();
-
-    return 1;
 }
