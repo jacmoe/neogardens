@@ -21,8 +21,9 @@
 #include "nasl_draw.h"
 
 
-static void init(int width, int height);
-static void shutdown();
+static int init(int width, int height);
+static int shutdown();
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 char maze[16][16] = {
 	{1, 1, 1, 1,    1, 1, 1, 1,    1, 1, 1, 1,    1, 1, 1, 1},
@@ -79,37 +80,22 @@ int main()
     Buffer* background = nasl_image_load("assets/textures/background.png");
     nasl_buffer_blit(buffer, background, 0, 0);
 
-    SDL_Event event;
-    int quit = 0;
-
     // Main loop
-    while(!quit)
+    while(nasl_graphics_running())
     {
-        while(SDL_PollEvent(&event))
-        {
+        // Event polling
+        nasl_graphics_poll_events();
 
-            switch(event.type)
-            {
-                /* SDL_QUIT event (window close) */
-                case SDL_QUIT:
-                    quit = 1;
-                    break;
+        // draw box and maze
+        nasl_buffer_clear(buffer, GREY1);
+        nasl_buffer_blit(buffer, background, 0, 0);
+        draw_box(buffer);
+        draw_maze(buffer);
 
-                default:
-                    break;
-            }
-
-            // draw box and maze
-            nasl_buffer_clear(buffer, GREY1);
-            nasl_buffer_blit(buffer, background, 0, 0);
-            draw_box(buffer);
-            draw_maze(buffer);
-
-            // Render the main buffer
-            nasl_graphics_render(buffer);
-            // Swap buffers
-            nasl_graphics_present();
-        }
+        // Render the main buffer
+        nasl_graphics_render(buffer);
+        // Swap buffers
+        nasl_graphics_present();
     }
 
     // Destroy the main buffer
@@ -302,12 +288,15 @@ void draw_box(Buffer* buffer)
 	nasl_draw_rect(buffer, 82, 19, 294, 119, GREY3);
 }
 
-static void init(int width, int height)
+static int init(int width, int height)
 {
     nasl_graphics_init(width, height, "Neogardens Wireframe Maze Demo", 0, 3);
+
+    glfwSetKeyCallback(nasl_graphics_get_window(), key_callback);
+
+    return 1;
 }
 
-/*
 static void handle_keypress(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     // Do we want to move forward?
@@ -347,9 +336,21 @@ static void handle_keypress(GLFWwindow* window, int key, int scancode, int actio
             direction = 0;
     }
 }
-//*/
 
-static void shutdown()
+
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+    {
+        glfwSetWindowShouldClose(window, GLFW_TRUE);
+    } else {
+        handle_keypress(window, key, scancode, action, mods);
+    }
+}
+
+static int shutdown()
 {
     nasl_graphics_shutdown();
+
+    return 1;
 }

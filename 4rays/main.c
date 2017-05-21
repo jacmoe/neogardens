@@ -66,8 +66,9 @@ int move_backwards = 0;
 int turn_left = 0;
 int turn_right = 0;
 
-static void init(int width, int height);
-static void shutdown();
+static int init(int width, int height);
+static int shutdown();
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 void draw_maze(Buffer* buffer);
 
@@ -78,88 +79,70 @@ int main()
 
     init(buffer_width, buffer_height);
     
-    //glfwSwapInterval(1);
+    glfwSwapInterval(1);
     
     // Create main buffer
     Buffer* buffer = nasl_buffer_create(buffer_width, buffer_height);
     nasl_buffer_set_mainbuffer(buffer);
 
-    SDL_Event event;
-    int quit = 0;
-
     // Main loop
-    while(!quit)
+    while(nasl_graphics_running())
     {
-        while(SDL_PollEvent(&event))
+        oldTime = time;
+        time = glfwGetTime();
+        frameTime = time - oldTime; //frameTime is the time this frame has taken, in seconds
+
+        //speed modifiers
+        double moveSpeed = frameTime * 5.0; //the constant value is in squares/second
+        double rotSpeed = frameTime * 2.0;   //the constant value is in radians/second
+
+        if(move_forwards)
         {
-
-            switch(event.type)
-            {
-                /* SDL_QUIT event (window close) */
-                case SDL_QUIT:
-                    quit = 1;
-                    break;
-
-                default:
-                    break;
-            }
-
-            oldTime = time;
-            time = 1000;//glfwGetTime();
-            frameTime = time - oldTime; //frameTime is the time this frame has taken, in seconds
-
-            //speed modifiers
-            double moveSpeed = frameTime * 5.0; //the constant value is in squares/second
-            double rotSpeed = frameTime * 2.0;   //the constant value is in radians/second
-
-            if(move_forwards)
-            {
-                if (!worldMap[(int)(posX + dirX * moveSpeed)][(int)(posY)])
-                    posX += dirX * moveSpeed;
-                if (!worldMap[(int)(posX)][(int)(posY + dirY * moveSpeed)])
-                    posY += dirY * moveSpeed;
-            }
-            if(move_backwards)
-            {
-                if (!worldMap[(int)(posX - dirX * moveSpeed)][(int)(posY)])
-                    posX -= dirX * moveSpeed;
-                if (!worldMap[(int)(posX)][(int)(posY - dirY * moveSpeed)])
-                    posY -= dirY * moveSpeed;
-            }
-            if(turn_left)
-            {
-                //both camera direction and camera plane must be rotated
-                double oldDirX = dirX;
-                dirX = dirX * cos(rotSpeed) - dirY * sin(rotSpeed);
-                dirY = oldDirX * sin(rotSpeed) + dirY * cos(rotSpeed);
-                double oldPlaneX = planeX;
-                planeX = planeX * cos(rotSpeed) - planeY * sin(rotSpeed);
-                planeY = oldPlaneX * sin(rotSpeed) + planeY * cos(rotSpeed);
-            }
-            if(turn_right)
-            {
-                //both camera direction and camera plane must be rotated
-                double oldDirX = dirX;
-                dirX = dirX * cos(-rotSpeed) - dirY * sin(-rotSpeed);
-                dirY = oldDirX * sin(-rotSpeed) + dirY * cos(-rotSpeed);
-                double oldPlaneX = planeX;
-                planeX = planeX * cos(-rotSpeed) - planeY * sin(-rotSpeed);
-                planeY = oldPlaneX * sin(-rotSpeed) + planeY * cos(-rotSpeed);
-            }
-
-            // Event polling
-            nasl_graphics_poll_events();
-
-            // draw box and maze
-            nasl_buffer_clear(buffer, GREY1);
-            draw_maze(buffer);
-            //draw_box(buffer);
-
-            // Render the main buffer
-            nasl_graphics_render(buffer);
-            // Swap buffers
-            nasl_graphics_present();
+            if (!worldMap[(int)(posX + dirX * moveSpeed)][(int)(posY)])
+                posX += dirX * moveSpeed;
+            if (!worldMap[(int)(posX)][(int)(posY + dirY * moveSpeed)])
+                posY += dirY * moveSpeed;
         }
+        if(move_backwards)
+        {
+            if (!worldMap[(int)(posX - dirX * moveSpeed)][(int)(posY)])
+                posX -= dirX * moveSpeed;
+            if (!worldMap[(int)(posX)][(int)(posY - dirY * moveSpeed)])
+                posY -= dirY * moveSpeed;
+        }
+        if(turn_left)
+        {
+            //both camera direction and camera plane must be rotated
+            double oldDirX = dirX;
+            dirX = dirX * cos(rotSpeed) - dirY * sin(rotSpeed);
+            dirY = oldDirX * sin(rotSpeed) + dirY * cos(rotSpeed);
+            double oldPlaneX = planeX;
+            planeX = planeX * cos(rotSpeed) - planeY * sin(rotSpeed);
+            planeY = oldPlaneX * sin(rotSpeed) + planeY * cos(rotSpeed);
+        }
+        if(turn_right)
+        {
+            //both camera direction and camera plane must be rotated
+            double oldDirX = dirX;
+            dirX = dirX * cos(-rotSpeed) - dirY * sin(-rotSpeed);
+            dirY = oldDirX * sin(-rotSpeed) + dirY * cos(-rotSpeed);
+            double oldPlaneX = planeX;
+            planeX = planeX * cos(-rotSpeed) - planeY * sin(-rotSpeed);
+            planeY = oldPlaneX * sin(-rotSpeed) + planeY * cos(-rotSpeed);
+        }
+
+        // Event polling
+        nasl_graphics_poll_events();
+
+        // draw box and maze
+        nasl_buffer_clear(buffer, GREY1);
+    	draw_maze(buffer);
+        //draw_box(buffer);
+
+        // Render the main buffer
+        nasl_graphics_render(buffer);
+        // Swap buffers
+        nasl_graphics_present();
     }
 
     // Destroy the main buffer
@@ -270,12 +253,15 @@ void draw_maze(Buffer* buffer)
 }
 
 
-static void init(int width, int height)
+static int init(int width, int height)
 {
     nasl_graphics_init(width, height, "Neogardens Solid Color Raycast Maze Demo", 0, 3);
+
+    glfwSetKeyCallback(nasl_graphics_get_window(), key_callback);
+
+    return 1;
 }
 
-/*
 static void handle_keypress(int key, int action)
 {
     // Do we want to move forward?
@@ -311,9 +297,21 @@ static void handle_keypress(int key, int action)
             turn_right = 0;
     }
 }
-//*/
 
-static void shutdown()
+
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+    {
+        glfwSetWindowShouldClose(window, GLFW_TRUE);
+    } else {
+        handle_keypress(key, action);
+    }
+}
+
+static int shutdown()
 {
     nasl_graphics_shutdown();
+
+    return 1;
 }
