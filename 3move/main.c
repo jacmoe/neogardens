@@ -95,6 +95,55 @@ int main()
                     quit = 1;
                     break;
 
+                case SDL_KEYDOWN:
+                    switch(event.key.keysym.sym)
+                    {
+                        /* move forwards */
+                        case SDLK_w:
+                            newpos.x = pos.x + increment[direction].x;
+                            newpos.y = pos.y + increment[direction].y;
+                            if(!maze[newpos.x][newpos.y])
+                            {
+                                pos.x = newpos.x;
+                                pos.y = newpos.y;
+                            }
+                            break;
+
+                        /* move backwards */
+                        case SDLK_s:
+                            newpos.x = pos.x - increment[direction].x;
+                            newpos.y = pos.y - increment[direction].y;
+                            if(!maze[newpos.x][newpos.y])
+                            {
+                                pos.x = newpos.x;
+                                pos.y = newpos.y;
+                            }
+                            break;
+
+                        /* turn left */
+                        case SDLK_a:
+                            --direction;
+                            if(direction < 0)
+                                direction = 3;
+                            break;
+
+                        /* turn left */
+                        case SDLK_d:
+                            direction++;
+                            if(direction > 3)
+                                direction = 0;
+                            break;
+
+                        /* quit */
+                        case SDLK_q:
+                            quit = 1;
+                            break;
+
+                        default:
+                            break;
+                    }
+                    break;
+
                 default:
                     break;
             }
@@ -306,48 +355,6 @@ static void init(int width, int height)
 {
     nasl_graphics_init(width, height, "Neogardens Wireframe Maze Demo", 0, 3);
 }
-
-/*
-static void handle_keypress(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-    // Do we want to move forward?
-    if(key == GLFW_KEY_W)
-    {
-        newpos.x = pos.x + increment[direction].x;
-        newpos.y = pos.y + increment[direction].y;
-        if(!maze[newpos.x][newpos.y])
-        {
-            pos.x = newpos.x;
-            pos.y = newpos.y;
-        }
-    }
-    // or do we want to go backward?
-    else if(key == GLFW_KEY_S)
-    {
-        newpos.x = pos.x - increment[direction].x;
-        newpos.y = pos.y - increment[direction].y;
-        if(!maze[newpos.x][newpos.y])
-        {
-            pos.x = newpos.x;
-            pos.y = newpos.y;
-        }
-    }
-    // Do we want to turn left?
-    if(key == GLFW_KEY_A)
-    {
-        --direction;
-        if(direction < 0)
-            direction = 3;
-    }
-    // or do we want to turn right?
-    else if(key == GLFW_KEY_D)
-    {
-        direction++;
-        if(direction > 3)
-            direction = 0;
-    }
-}
-//*/
 
 static void shutdown()
 {
